@@ -29,16 +29,16 @@ public enum CustomResourceHandlerError: Error {
 
 public protocol CustomResourceLambdaHandler: EventLoopCustomResourceLambdaHandler {
 
-    func create(context: Lambda.Context, event: CreateEvent, completion: @escaping (Result<ResourceResult, Error>) -> Void)
+    func create(context: LambdaContext, event: CreateEvent, completion: @escaping (Result<ResourceResult, Error>) -> Void)
 
-    func update(context: Lambda.Context, event: UpdateEvent, completion: @escaping (Result<ResourceResult, Error>) -> Void)
+    func update(context: LambdaContext, event: UpdateEvent, completion: @escaping (Result<ResourceResult, Error>) -> Void)
 
-    func delete(context: Lambda.Context, event: DeleteEvent, completion: @escaping (Result<Void, Error>) -> Void)
+    func delete(context: LambdaContext, event: DeleteEvent, completion: @escaping (Result<Void, Error>) -> Void)
 }
 
 public extension CustomResourceLambdaHandler {
 
-    func create(context: Lambda.Context, event: CreateEvent) -> EventLoopFuture<ResourceResult> {
+    func create(context: LambdaContext, event: CreateEvent) -> EventLoopFuture<ResourceResult> {
 
         let promise = context.eventLoop.makePromise(of: ResourceResult.self)
 
@@ -49,7 +49,7 @@ public extension CustomResourceLambdaHandler {
         return promise.futureResult
     }
 
-    func update(context: Lambda.Context, event: UpdateEvent) -> EventLoopFuture<ResourceResult> {
+    func update(context: LambdaContext, event: UpdateEvent) -> EventLoopFuture<ResourceResult> {
         let promise = context.eventLoop.makePromise(of: ResourceResult.self)
 
         Lambda.defaultOffloadQueue.async {
@@ -59,7 +59,7 @@ public extension CustomResourceLambdaHandler {
         return promise.futureResult
     }
 
-    func delete(context: Lambda.Context, event: DeleteEvent) -> EventLoopFuture<Void> {
+    func delete(context: LambdaContext, event: DeleteEvent) -> EventLoopFuture<Void> {
         let promise = context.eventLoop.makePromise(of: Void.self)
 
         Lambda.defaultOffloadQueue.async {
@@ -80,11 +80,11 @@ public protocol EventLoopCustomResourceLambdaHandler: ByteBufferLambdaHandler {
 
     typealias ResourceResult = CustomResourcePutResult<ResourceData>
 
-    func create(context: Lambda.Context, event: CreateEvent) -> EventLoopFuture<ResourceResult>
+    func create(context: LambdaContext, event: CreateEvent) -> EventLoopFuture<ResourceResult>
 
-    func update(context: Lambda.Context, event: UpdateEvent) -> EventLoopFuture<ResourceResult>
+    func update(context: LambdaContext, event: UpdateEvent) -> EventLoopFuture<ResourceResult>
 
-    func delete(context: Lambda.Context, event: DeleteEvent) -> EventLoopFuture<Void>
+    func delete(context: LambdaContext, event: DeleteEvent) -> EventLoopFuture<Void>
 }
 
 public extension EventLoopCustomResourceLambdaHandler {
@@ -92,7 +92,7 @@ public extension EventLoopCustomResourceLambdaHandler {
     typealias In = CustomResourceLambdaEvent<ResourceProperties>
     typealias Out = Void
 
-    func handle(context: Lambda.Context, event: ByteBuffer) -> EventLoopFuture<ByteBuffer?> {
+    func handle(context: LambdaContext, event: ByteBuffer) -> EventLoopFuture<ByteBuffer?> {
         do {
             return handle(
                 context: context,
@@ -105,7 +105,7 @@ public extension EventLoopCustomResourceLambdaHandler {
         }
     }
 
-    func handle(context: Lambda.Context, event: In) -> EventLoopFuture<Out> {
+    func handle(context: LambdaContext, event: In) -> EventLoopFuture<Out> {
         let httpClient = HTTPClient(eventLoopGroupProvider: .shared(context.eventLoop))
 
         let promise = context.eventLoop.makePromise(of: Void.self)
