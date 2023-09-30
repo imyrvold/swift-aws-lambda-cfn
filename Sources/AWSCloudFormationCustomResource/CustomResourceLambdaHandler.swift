@@ -70,7 +70,7 @@ public extension CustomResourceLambdaHandler {
     }
 }
 
-public protocol EventLoopCustomResourceLambdaHandler: ByteBufferLambdaHandler {
+public protocol EventLoopCustomResourceLambdaHandler: EventLoopLambdaHandler {
     associatedtype ResourceProperties: Decodable
     associatedtype ResourceData: Encodable
 
